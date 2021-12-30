@@ -1,25 +1,39 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useRef, useState } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
 
-function App() {
+function Box(props) {
+  
+  const ref = useRef()
+
+  const [hovered, hover] = useState(false)
+  const [clicked, click] = useState(false)
+
+  // Subscribe this component to the render-loop, rotate the mesh every frame
+  useFrame((state, delta) => (ref.current.rotation.x += 0.01))
+
+  // Return the view
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <mesh
+      {...props}
+      ref={ref}
+      scale={clicked ? 1.5 : 1}
+      onClick={(event) => click(!clicked)}
+      onPointerOver={(event) => hover(true)}
+      onPointerOut={(event) => hover(false)}>
+        <boxGeometry args={[1.5, 1, 1]} />
+        <meshStandardMaterial color={hovered ? 'red' : 'hotpink'} />
+      </mesh>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Canvas>
+      <ambientLight intensity={0.5} />
+      <spotLight position={[10, 10, 10]} angle={0.15} penumra={1} />
+      <pointLight position={[-10, 10, 10]} />
+      <Box position={[-1.2, 0, 0]} />
+      <Box position={[1.2, 0, 0]} />
+    </Canvas>
+  )
+}
